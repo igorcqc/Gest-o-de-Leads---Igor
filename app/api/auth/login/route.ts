@@ -14,19 +14,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Senha inválida" }, { status: 400 });
   }
 
-  const isValid = await verifyPassword(parsed.data.password);
-  if (!isValid) {
-    return NextResponse.json({ error: "Senha incorreta" }, { status: 401 });
-  }
+  try {
+    const isValid = await verifyPassword(parsed.data.password);
+    if (!isValid) {
+      return NextResponse.json({ error: "Senha incorreta" }, { status: 401 });
+    }
 
-  const token = createSessionToken();
-  const response = NextResponse.json({ success: true });
-  response.cookies.set(SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-  return response;
+    const token = createSessionToken();
+    const response = NextResponse.json({ success: true });
+    response.cookies.set(SESSION_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    return response;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro ao autenticar";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
