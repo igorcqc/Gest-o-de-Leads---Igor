@@ -37,10 +37,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   }
 
   function handleSave(values: LeadFormValues) {
-    updateLead({
-      ...values,
-      valor_estimado: Number.isNaN(values.valor_estimado) ? null : values.valor_estimado,
-    });
+    updateLead(values);
   }
 
   return (

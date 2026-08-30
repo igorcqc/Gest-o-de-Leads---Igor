@@ -23,9 +23,6 @@ import { cn } from "@/lib/utils";
 import {
   ORIGEM_LABELS,
   STATUS_LABELS,
-  AMBIENTE_LABELS,
-  ETAPA_OBRA_LABELS,
-  PRAZO_LABELS,
   TAMANHO_LOJA_LABELS,
   type Lead,
 } from "@/lib/types";
@@ -53,17 +50,12 @@ const formSchema = z.object({
   niche: z.string().trim().optional(),
   pipeline: z.enum(["prospeccao", "anuncios"]),
   temperature: z.enum(["Quente", "Morno", "Frio"]),
-  source: z.string().trim().optional(),
   next_action_text: z.string().trim().optional(),
   proximo_followup: z.string().optional(),
   campaign: z.string().trim().optional(),
   adset: z.string().trim().optional(),
   ad_name: z.string().trim().optional(),
   loss_reason: z.string().trim().optional(),
-  ambiente: z.string().optional(),
-  valor_estimado: z.union([z.coerce.number(), z.nan()]).optional(),
-  etapa_obra: z.string().optional(),
-  prazo: z.string().optional(),
   dor_principal: z.string().trim().optional(),
   gargalo: z.string().trim().optional(),
   ja_investe_ads: z.boolean(),
@@ -129,7 +121,6 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
       niche: initialData?.niche ?? "",
       pipeline: initialData?.pipeline ?? "prospeccao",
       temperature: initialData?.temperature ?? "Morno",
-      source: initialData?.source ?? "Prospecção ativa",
       next_action_text: initialData?.next_action_text ?? "Realizar próximo contato",
       proximo_followup: initialData?.proximo_followup
         ? new Date(initialData.proximo_followup).toISOString().slice(0, 16)
@@ -138,10 +129,6 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
       adset: initialData?.adset ?? "",
       ad_name: initialData?.ad_name ?? "",
       loss_reason: initialData?.loss_reason ?? "",
-      ambiente: initialData?.ambiente ?? undefined,
-      valor_estimado: initialData?.valor_estimado ?? undefined,
-      etapa_obra: initialData?.etapa_obra ?? undefined,
-      prazo: initialData?.prazo ?? undefined,
       dor_principal: initialData?.dor_principal ?? "",
       gargalo: initialData?.gargalo ?? "",
       ja_investe_ads: initialData?.ja_investe_ads ?? false,
@@ -152,9 +139,9 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
     },
   });
 
-  const [tags, painScore, jaInvesteAds, tamanhoLoja, valorEstimado, etapaObra, status] = useWatch({
+  const [tags, painScore, jaInvesteAds, tamanhoLoja, status] = useWatch({
     control,
-    name: ["tags", "pain_score", "ja_investe_ads", "tamanho_loja", "valor_estimado", "etapa_obra", "status"],
+    name: ["tags", "pain_score", "ja_investe_ads", "tamanho_loja", "status"],
   });
 
   return (
@@ -291,73 +278,6 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
 
       <Section title="Qualificação">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label>Ambiente</Label>
-            <Controller
-              control={control}
-              name="ambiente"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(AMBIENTE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="valor_estimado">Valor estimado (R$)</Label>
-            <Input id="valor_estimado" type="number" step="0.01" {...register("valor_estimado")} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Etapa da obra</Label>
-            <Controller
-              control={control}
-              name="etapa_obra"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(ETAPA_OBRA_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Prazo</Label>
-            <Controller
-              control={control}
-              name="prazo"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(PRAZO_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="dor_principal">Dor principal</Label>
             <Textarea id="dor_principal" {...register("dor_principal")} rows={2} />
@@ -411,8 +331,8 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
             onChange={(v) => setValue("pain_score", v)}
             jaInvesteAds={jaInvesteAds}
             tamanhoLoja={tamanhoLoja as never}
-            valorEstimado={typeof valorEstimado === "number" ? valorEstimado : null}
-            etapaObra={etapaObra as never}
+            valorEstimado={null}
+            etapaObra={null}
           />
         </div>
       </Section>

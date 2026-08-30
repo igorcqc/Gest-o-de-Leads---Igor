@@ -172,7 +172,7 @@ export function leadPayloadToContact(payload: UnknownRecord): UnknownRecord {
     city: payload.cidade,
     state: payload.state,
     niche: payload.niche,
-    source: payload.source ?? ORIGIN_TO_SOURCE[origem],
+    source: payload.origem !== undefined ? ORIGIN_TO_SOURCE[origem] : payload.source,
     pipeline,
     prospect_status: payload.prospect_status,
     temperature: payload.temperature,
@@ -199,4 +199,3 @@ export function leadPayloadToContact(payload: UnknownRecord): UnknownRecord {
   if (payload.list_id !== undefined) result.list_id = payload.list_id;
   return Object.fromEntries(Object.entries(result).filter(([, value]) => value !== undefined));
 }
-

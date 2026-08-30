@@ -10,10 +10,7 @@ export default function NovoLeadPage() {
 
   function handleSubmit(values: LeadFormValues) {
     mutate(
-      {
-        ...values,
-        valor_estimado: Number.isNaN(values.valor_estimado) ? null : values.valor_estimado,
-      },
+      values,
       {
         onSuccess: (lead) => {
           router.push(`/leads/${lead.id}`);
