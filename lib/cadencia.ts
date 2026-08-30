@@ -3,6 +3,7 @@ export const CADENCIA: Record<string, number | null> = {
   em_contato: 3,
   respondeu: 3,
   qualificado: 5,
+  reuniao: 2,
   proposta: 5,
   negociacao: 3,
   fechado: null,

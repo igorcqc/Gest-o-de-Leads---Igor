@@ -45,8 +45,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl">CRM de Prospecção</CardTitle>
-          <CardDescription>Lojas de Móveis Planejados</CardDescription>
+          <CardTitle className="text-xl">CRM Protocolo 10K</CardTitle>
+          <CardDescription>Prospecção, leads e rotina comercial</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createSessionToken, verifyPassword, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { createSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { authenticateCrmLogin, CRM_OWNER_EMAIL } from "@/lib/crm";
+import { createHmac } from "node:crypto";
 
 const loginSchema = z.object({
   password: z.string().min(1),
@@ -15,12 +17,20 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const isValid = await verifyPassword(parsed.data.password);
-    if (!isValid) {
+    const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const ip = forwarded ?? request.headers.get("x-real-ip") ?? "unknown";
+    const fingerprint = createHmac("sha256", process.env.APP_SECRET ?? "local-development")
+      .update(ip)
+      .digest("hex");
+    const auth = await authenticateCrmLogin(parsed.data.password, fingerprint);
+    if (auth.locked) {
+      return NextResponse.json({ error: "Muitas tentativas. Aguarde 15 minutos." }, { status: 429 });
+    }
+    if (!auth.valid) {
       return NextResponse.json({ error: "Senha incorreta" }, { status: 401 });
     }
 
-    const token = createSessionToken();
+    const token = createSessionToken(parsed.data.password, CRM_OWNER_EMAIL);
     const response = NextResponse.json({ success: true });
     response.cookies.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,

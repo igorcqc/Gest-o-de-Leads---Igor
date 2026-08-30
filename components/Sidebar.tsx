@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Trash2, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Trash2, LogOut, Upload, BarChart3, Settings, ListTodo } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/leads", label: "Leads", icon: Users },
+  { href: "/tarefas", label: "Tarefas", icon: ListTodo },
+  { href: "/importar", label: "Importar lista", icon: Upload },
+  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+  { href: "/configuracoes", label: "Configurações", icon: Settings },
   { href: "/lixeira", label: "Lixeira", icon: Trash2 },
 ];
 
@@ -25,12 +29,12 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex w-56 shrink-0 flex-col border-r border-border bg-card px-3 py-4">
       <div className="px-2 pb-6">
-        <p className="font-semibold text-sm">CRM Planejados</p>
-        <p className="text-xs text-muted-foreground">Prospecção & Leads</p>
+        <p className="font-semibold text-sm">CRM Protocolo 10K</p>
+        <p className="text-xs text-muted-foreground">Operação comercial</p>
       </div>
       <nav className="flex flex-1 flex-col gap-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`));
           const Icon = item.icon;
           return (
             <Link

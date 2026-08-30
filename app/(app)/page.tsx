@@ -42,12 +42,20 @@ export default function DashboardPage() {
         hoje={data.hoje.hoje}
         reativar={data.hoje.reativar}
         calls={data.hoje.calls}
+        novosHoje={data.hoje.novosHoje}
+        followupsFeitos={data.hoje.followupsFeitos}
+        metaNovos={data.hoje.metaNovos}
+        metaFollowups={data.hoje.metaFollowups}
+        aguardandoPrimeiroContato={data.hoje.aguardandoPrimeiroContato}
+        slaEstourado={data.hoje.slaEstourado}
+        slaMinutos={data.hoje.slaMinutos}
       />
 
       <KPICards
         leadsAtivos={data.kpis.leadsAtivos}
         clientesAtivos={data.kpis.clientesAtivos}
         taxaConversao={data.kpis.taxaConversao}
+        pipelineMrr={data.kpis.pipelineMrr}
         funilDoMes={data.kpis.funilDoMes}
       />
 

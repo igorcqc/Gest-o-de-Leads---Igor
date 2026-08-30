@@ -9,8 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CRM de Prospecção — Lojas de Móveis Planejados",
-  description: "Sistema pessoal de prospecção e gestão de leads",
+  title: "CRM Protocolo 10K",
+  description: "Sistema pessoal de prospecção, leads e rotina comercial",
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

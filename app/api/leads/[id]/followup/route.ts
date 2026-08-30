@@ -1,61 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase";
+import { bootstrapCrm, mutateCrm } from "@/lib/crm";
+import { contactToLead } from "@/lib/crm-mappers";
 import { calcularProximoFollowup } from "@/lib/cadencia";
 import { z } from "zod";
 
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
-
-const bodySchema = z.object({
-  acao: z.enum(["concluir", "reagendar", "pausar", "reativar"]),
-  data: z.string().optional(),
-});
+interface RouteParams { params: Promise<{ id: string }> }
+const bodySchema = z.object({ acao: z.enum(["concluir", "reagendar", "pausar", "reativar"]), data: z.string().optional() });
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const body = await request.json().catch(() => null);
-  const parsed = bodySchema.safeParse(body);
-
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  const parsed = bodySchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  try {
+    const data = await bootstrapCrm();
+    const current = data.contacts.find((item) => String(item.id) === id);
+    if (!current) return NextResponse.json({ error: "Lead não encontrado" }, { status: 404 });
+    const lead = contactToLead(current);
+    const payload: Record<string, unknown> = { id };
+    if (parsed.data.acao === "concluir") {
+      const next = calcularProximoFollowup(lead.status);
+      payload.next_action_at = next?.toISOString() ?? null;
+      payload.last_contact_at = new Date().toISOString();
+      await mutateCrm("add_activity", { contact_id: id, activity_type: "follow_up", title: "Follow-up concluído", content: "Follow-up marcado como realizado" });
+    } else if (parsed.data.acao === "reagendar") payload.next_action_at = parsed.data.data ?? null;
+    else if (parsed.data.acao === "pausar") payload.next_action_at = null;
+    else payload.next_action_at = calcularProximoFollowup(lead.status)?.toISOString() ?? null;
+    const updated = await mutateCrm("update_contact", payload);
+    return NextResponse.json({ lead: contactToLead(updated) });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Erro ao atualizar follow-up" }, { status: 400 });
   }
-
-  const updates: Record<string, unknown> = {};
-
-  if (parsed.data.acao === "concluir") {
-    const { data: lead } = await supabaseServer
-      .from("leads")
-      .select("status")
-      .eq("id", id)
-      .single();
-
-    const proximo = lead ? calcularProximoFollowup(lead.status) : null;
-    updates.proximo_followup = proximo ? proximo.toISOString() : null;
-
-    await supabaseServer.from("interacoes").insert({
-      lead_id: id,
-      tipo: "followup",
-      descricao: "Follow-up marcado como feito",
-    });
-  } else if (parsed.data.acao === "reagendar" && parsed.data.data) {
-    updates.proximo_followup = new Date(parsed.data.data).toISOString();
-  } else if (parsed.data.acao === "pausar") {
-    updates.followup_ativo = false;
-  } else if (parsed.data.acao === "reativar") {
-    updates.followup_ativo = true;
-  }
-
-  const { data: lead, error } = await supabaseServer
-    .from("leads")
-    .update(updates)
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error || !lead) {
-    return NextResponse.json({ error: error?.message ?? "Lead não encontrado" }, { status: 404 });
-  }
-
-  return NextResponse.json({ lead });
 }

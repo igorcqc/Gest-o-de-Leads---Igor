@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "@/components/leads/StatusBadge";
 import { useUpdateLead } from "@/hooks/use-leads";
+import { toast } from "sonner";
 import { STATUS_ORDER, STATUS_LABELS, type StatusLead } from "@/lib/types";
 
 export function StatusChangeDropdown({
@@ -35,7 +36,18 @@ export function StatusChangeDropdown({
           <DropdownMenuItem
             key={value}
             disabled={value === status}
-            onClick={() => mutate({ status: value })}
+            onClick={() => {
+              if (value === "perdido") {
+                const reason = window.prompt("Qual foi o motivo da perda?");
+                if (!reason?.trim()) {
+                  toast.error("O motivo da perda é obrigatório");
+                  return;
+                }
+                mutate({ status: value, loss_reason: reason.trim() });
+                return;
+              }
+              mutate({ status: value });
+            }}
           >
             {STATUS_LABELS[value]}
           </DropdownMenuItem>

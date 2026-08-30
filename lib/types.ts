@@ -5,6 +5,7 @@ export type StatusLead =
   | "em_contato"
   | "respondeu"
   | "qualificado"
+  | "reuniao"
   | "proposta"
   | "negociacao"
   | "fechado"
@@ -76,6 +77,32 @@ export interface Lead {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  contact_name: string | null;
+  email: string | null;
+  state: string | null;
+  niche: string | null;
+  pipeline: "prospeccao" | "anuncios";
+  source: string;
+  prospect_status: string;
+  temperature: "Quente" | "Morno" | "Frio";
+  next_action_text: string | null;
+  campaign: string | null;
+  adset: string | null;
+  ad_name: string | null;
+  form_name: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+  loss_reason: string | null;
+  list_id: string | null;
+  first_contact_at: string | null;
+  responded_at: string | null;
+  qualified_at: string | null;
+  meeting_at: string | null;
+  proposal_at: string | null;
+  last_contact_at: string | null;
+  last_message_step: number;
 }
 
 export interface Interacao {
@@ -104,6 +131,7 @@ export const STATUS_LABELS: Record<StatusLead, string> = {
   em_contato: "Em contato",
   respondeu: "Respondeu",
   qualificado: "Qualificado",
+  reuniao: "Reunião",
   proposta: "Proposta",
   negociacao: "Negociação",
   fechado: "Fechado",
@@ -115,6 +143,7 @@ export const STATUS_ORDER: StatusLead[] = [
   "em_contato",
   "respondeu",
   "qualificado",
+  "reuniao",
   "proposta",
   "negociacao",
   "fechado",

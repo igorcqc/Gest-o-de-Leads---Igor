@@ -75,7 +75,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
             proximoFollowup={lead.proximo_followup}
             followupAtivo={lead.followup_ativo}
           />
-          <AcoesRapidas telefone={lead.telefone} instagramHandle={lead.instagram_handle} />
+          <AcoesRapidas telefone={lead.telefone} instagramHandle={lead.instagram_handle} nome={lead.contact_name ?? lead.nome} />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">

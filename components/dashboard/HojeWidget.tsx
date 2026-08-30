@@ -38,9 +38,19 @@ interface HojeWidgetProps {
   hoje: HojeLead[];
   reativar: HojeLead[];
   calls: HojeCall[];
+  novosHoje: number;
+  followupsFeitos: number;
+  metaNovos: number;
+  metaFollowups: number;
+  aguardandoPrimeiroContato: number;
+  slaEstourado: number;
+  slaMinutos: number;
 }
 
-export function HojeWidget({ atrasados, hoje, reativar, calls }: HojeWidgetProps) {
+export function HojeWidget({
+  atrasados, hoje, reativar, calls, novosHoje, followupsFeitos,
+  metaNovos, metaFollowups, aguardandoPrimeiroContato, slaEstourado, slaMinutos,
+}: HojeWidgetProps) {
   const total = atrasados.length + hoje.length;
 
   return (
@@ -51,6 +61,24 @@ export function HojeWidget({ atrasados, hoje, reativar, calls }: HojeWidgetProps
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Novos contatos</p>
+            <p className="mt-1 text-xl font-semibold">{novosHoje}<span className="text-sm text-muted-foreground">/{metaNovos}</span></p>
+          </div>
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Follow-ups feitos</p>
+            <p className="mt-1 text-xl font-semibold">{followupsFeitos}<span className="text-sm text-muted-foreground">/{metaFollowups}</span></p>
+          </div>
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">Aguardando 1º contato</p>
+            <p className="mt-1 text-xl font-semibold">{aguardandoPrimeiroContato}</p>
+          </div>
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-xs text-muted-foreground">SLA acima de {slaMinutos} min</p>
+            <p className={`mt-1 text-xl font-semibold ${slaEstourado ? "text-destructive" : "text-success"}`}>{slaEstourado}</p>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div>
             <h3 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-destructive">

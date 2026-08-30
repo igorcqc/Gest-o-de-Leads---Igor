@@ -25,9 +25,9 @@ export default function NovoLeadPage() {
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
       <div>
-        <h1 className="text-xl font-semibold">Novo lead</h1>
+        <h1 className="text-xl font-semibold">Novo contato</h1>
         <p className="text-sm text-muted-foreground">
-          Cadastre um novo lead de anúncio ou prospecção
+          Cadastre uma oportunidade de anúncio, indicação ou prospecção
         </p>
       </div>
       <LeadForm mode="create" onSubmit={handleSubmit} submitting={isPending} />

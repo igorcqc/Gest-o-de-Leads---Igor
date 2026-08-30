@@ -26,6 +26,7 @@ function LeadsPageContent() {
   const followupInicial = searchParams.get("followup") as FollowupFiltro | null;
 
   const [view, setView] = useState<"kanban" | "tabela">("kanban");
+  const [pipeline, setPipeline] = useState<"todos" | "prospeccao" | "anuncios">("todos");
   const [filtros, setFiltros] = useState<LeadFiltros>({
     ...FILTROS_VAZIOS,
     followup: followupInicial,
@@ -35,15 +36,17 @@ function LeadsPageContent() {
 
   const leadsFiltrados = useMemo(() => {
     if (!leads) return [];
-    if (!filtros.scoreMin) return leads;
-    return leads.filter((lead) => (lead.pain_score ?? 0) >= filtros.scoreMin);
-  }, [leads, filtros.scoreMin]);
+    return leads.filter((lead) => {
+      if (pipeline !== "todos" && lead.pipeline !== pipeline) return false;
+      return !filtros.scoreMin || (lead.pain_score ?? 0) >= filtros.scoreMin;
+    });
+  }, [leads, filtros.scoreMin, pipeline]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold">Leads</h1>
+          <h1 className="text-xl font-semibold">Pipeline comercial</h1>
           <p className="text-sm text-muted-foreground">
             {leadsFiltrados.length} {leadsFiltrados.length === 1 ? "lead" : "leads"}
           </p>
@@ -65,6 +68,12 @@ function LeadsPageContent() {
             </Link>
           </Button>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant={pipeline === "todos" ? "default" : "outline"} onClick={() => setPipeline("todos")}>Todos</Button>
+        <Button size="sm" variant={pipeline === "prospeccao" ? "default" : "outline"} onClick={() => setPipeline("prospeccao")}>Prospecção ativa</Button>
+        <Button size="sm" variant={pipeline === "anuncios" ? "default" : "outline"} onClick={() => setPipeline("anuncios")}>Leads de anúncios</Button>
       </div>
 
       <LeadFilters filtros={filtros} onChange={setFiltros} />

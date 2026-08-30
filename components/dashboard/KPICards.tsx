@@ -5,6 +5,7 @@ interface KPICardsProps {
   leadsAtivos: number;
   clientesAtivos: number;
   taxaConversao: number;
+  pipelineMrr: number;
   funilDoMes: { status: StatusLead; total: number }[];
 }
 
@@ -12,6 +13,7 @@ export function KPICards({
   leadsAtivos,
   clientesAtivos,
   taxaConversao,
+  pipelineMrr,
   funilDoMes,
 }: KPICardsProps) {
   const maxFunil = Math.max(1, ...funilDoMes.map((item) => item.total));
@@ -43,13 +45,16 @@ export function KPICards({
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            Clientes ativos
+            Potencial no pipeline
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-semibold">{clientesAtivos}</p>
+          <p className="text-2xl font-semibold">
+            {pipelineMrr.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
+          </p>
         </CardContent>
       </Card>
+      <p className="sr-only">{clientesAtivos} clientes fechados</p>
 
       <Card>
         <CardHeader className="pb-2">

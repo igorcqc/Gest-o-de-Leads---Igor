@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronDown, Loader2 } from "lucide-react";
@@ -40,12 +40,26 @@ const formSchema = z.object({
     "em_contato",
     "respondeu",
     "qualificado",
+    "reuniao",
     "proposta",
     "negociacao",
     "fechado",
     "perdido",
   ]),
   instagram_handle: z.string().trim().optional(),
+  contact_name: z.string().trim().optional(),
+  email: z.string().trim().optional(),
+  state: z.string().trim().max(2).optional(),
+  niche: z.string().trim().optional(),
+  pipeline: z.enum(["prospeccao", "anuncios"]),
+  temperature: z.enum(["Quente", "Morno", "Frio"]),
+  source: z.string().trim().optional(),
+  next_action_text: z.string().trim().optional(),
+  proximo_followup: z.string().optional(),
+  campaign: z.string().trim().optional(),
+  adset: z.string().trim().optional(),
+  ad_name: z.string().trim().optional(),
+  loss_reason: z.string().trim().optional(),
   ambiente: z.string().optional(),
   valor_estimado: z.union([z.coerce.number(), z.nan()]).optional(),
   etapa_obra: z.string().optional(),
@@ -98,7 +112,6 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<LeadFormValues>({
@@ -110,6 +123,21 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
       origem: initialData?.origem ?? "prospeccao_instagram",
       status: initialData?.status ?? "novo",
       instagram_handle: initialData?.instagram_handle ?? "",
+      contact_name: initialData?.contact_name ?? "",
+      email: initialData?.email ?? "",
+      state: initialData?.state ?? "",
+      niche: initialData?.niche ?? "",
+      pipeline: initialData?.pipeline ?? "prospeccao",
+      temperature: initialData?.temperature ?? "Morno",
+      source: initialData?.source ?? "Prospecção ativa",
+      next_action_text: initialData?.next_action_text ?? "Realizar próximo contato",
+      proximo_followup: initialData?.proximo_followup
+        ? new Date(initialData.proximo_followup).toISOString().slice(0, 16)
+        : "",
+      campaign: initialData?.campaign ?? "",
+      adset: initialData?.adset ?? "",
+      ad_name: initialData?.ad_name ?? "",
+      loss_reason: initialData?.loss_reason ?? "",
       ambiente: initialData?.ambiente ?? undefined,
       valor_estimado: initialData?.valor_estimado ?? undefined,
       etapa_obra: initialData?.etapa_obra ?? undefined,
@@ -124,21 +152,23 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
     },
   });
 
-  const tags = watch("tags");
-  const painScore = watch("pain_score");
-  const jaInvesteAds = watch("ja_investe_ads");
-  const tamanhoLoja = watch("tamanho_loja");
-  const valorEstimado = watch("valor_estimado");
-  const etapaObra = watch("etapa_obra");
+  const [tags, painScore, jaInvesteAds, tamanhoLoja, valorEstimado, etapaObra, status] = useWatch({
+    control,
+    name: ["tags", "pain_score", "ja_investe_ads", "tamanho_loja", "valor_estimado", "etapa_obra", "status"],
+  });
 
   return (
     <form onSubmit={handleSubmit((values) => onSubmit(values))} className="flex flex-col gap-4">
       <Section title="Informações básicas">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="nome">Nome *</Label>
+            <Label htmlFor="nome">Empresa ou lead *</Label>
             <Input id="nome" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="contact_name">Pessoa de contato</Label>
+            <Input id="contact_name" {...register("contact_name")} />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="telefone">Telefone</Label>
@@ -149,8 +179,45 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
             <Input id="cidade" {...register("cidade")} />
           </div>
           <div className="flex flex-col gap-1.5">
+            <Label htmlFor="state">UF</Label>
+            <Input id="state" maxLength={2} {...register("state")} placeholder="SC" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="email">E-mail</Label>
+            <Input id="email" type="email" {...register("email")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="instagram_handle">Instagram</Label>
             <Input id="instagram_handle" {...register("instagram_handle")} placeholder="@usuario" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="niche">Nicho</Label>
+            <Input id="niche" {...register("niche")} placeholder="Ex: Móveis planejados" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Funil</Label>
+            <Controller control={control} name="pipeline" render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="prospeccao">Prospecção ativa</SelectItem>
+                  <SelectItem value="anuncios">Leads de anúncios</SelectItem>
+                </SelectContent>
+              </Select>
+            )} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Temperatura</Label>
+            <Controller control={control} name="temperature" render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Quente">Quente</SelectItem>
+                  <SelectItem value="Morno">Morno</SelectItem>
+                  <SelectItem value="Frio">Frio</SelectItem>
+                </SelectContent>
+              </Select>
+            )} />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Origem *</Label>
@@ -193,6 +260,31 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
                 </Select>
               )}
             />
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Próxima ação e campanha">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="next_action_text">Próxima ação</Label>
+            <Input id="next_action_text" {...register("next_action_text")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="proximo_followup">Data e hora</Label>
+            <Input id="proximo_followup" type="datetime-local" {...register("proximo_followup")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="campaign">Campanha</Label>
+            <Input id="campaign" {...register("campaign")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="adset">Conjunto</Label>
+            <Input id="adset" {...register("adset")} />
+          </div>
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="ad_name">Anúncio</Label>
+            <Input id="ad_name" {...register("ad_name")} />
           </div>
         </div>
       </Section>
@@ -331,6 +423,12 @@ export function LeadForm({ mode, initialData, onSubmit, submitting }: LeadFormPr
 
       <Section title="Observações" defaultOpen={false}>
         <Textarea {...register("observacoes")} rows={3} placeholder="Notas livres..." />
+        {status === "perdido" && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="loss_reason">Motivo da perda *</Label>
+            <Input id="loss_reason" {...register("loss_reason")} required />
+          </div>
+        )}
       </Section>
 
       <div className="sticky bottom-0 flex justify-end gap-2 border-t border-border bg-background py-3">

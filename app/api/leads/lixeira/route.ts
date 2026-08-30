@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase";
+import { bootstrapCrm } from "@/lib/crm";
+import { contactToLead } from "@/lib/crm-mappers";
 
 export async function GET() {
-  const { data, error } = await supabaseServer
-    .from("leads")
-    .select("*")
-    .not("deleted_at", "is", null)
-    .order("deleted_at", { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const data = await bootstrapCrm();
+    return NextResponse.json({ leads: data.trash.map(contactToLead) });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Erro ao carregar lixeira" }, { status: 500 });
   }
-
-  return NextResponse.json({ leads: data });
 }

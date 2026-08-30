@@ -34,11 +34,19 @@ export interface DashboardData {
     hoje: HojeLead[];
     reativar: HojeLead[];
     calls: HojeCall[];
+    novosHoje: number;
+    followupsFeitos: number;
+    metaNovos: number;
+    metaFollowups: number;
+    aguardandoPrimeiroContato: number;
+    slaEstourado: number;
+    slaMinutos: number;
   };
   kpis: {
     leadsAtivos: number;
     clientesAtivos: number;
     taxaConversao: number;
+    pipelineMrr: number;
     funilDoMes: { status: StatusLead; total: number }[];
   };
   atividadeRecente: AtividadeItem[];
